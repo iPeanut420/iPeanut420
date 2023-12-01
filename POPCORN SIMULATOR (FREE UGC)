@@ -1,0 +1,154 @@
+getgenv().mob = true
+getgenv().autoPop = true
+getgenv().autoclaim = true
+getgenv().autoRebirth = true
+
+function Npc(selectedMob)
+  spawn(function()
+    while getgenv().autoMob do
+    game:GetService("ReplicatedStorage").Packages.Knit.Services.PopService.RF.BattleWon:InvokeServer(selectedMob)
+      task.wait()
+    end
+  end)
+end
+
+function Pop()
+  spawn(function()
+    while getgenv().autoPop do
+      game:GetService("ReplicatedStorage").Packages.Knit.Services.PopService.RF.Pop:InvokeServer()
+      task.wait()
+    end
+  end)
+end
+
+function Claim()
+  spawn(function()
+    while getgenv().autoClaim do
+      game:GetService("ReplicatedStorage").Packages.Knit.Services.PopService.RF.AddPopcorn:InvokeServer(100)
+      task.wait()
+    end
+  end)
+end
+
+function Rebirth()
+  spawn(function()
+    while getgenv().autoRebirth do
+      game:GetService("ReplicatedStorage").Packages.Knit.Services.GameService.RF.Rebirth:InvokeServer()
+      task.wait()
+    end
+  end)
+end
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "PopCorn Simulator",
+    SubTitle = "Zniv Hub",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+Fluent:Notify({
+    Title = "Script Executed!",
+    Content = "Hey Skiddie " .. game.Players.LocalPlayer.Name,
+    SubContent = "Logged In!",
+    Duration = 7
+})
+
+local Tabs = {
+    Home = Window:AddTab({ Title = "Home", Icon = "home" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "gamepad-2" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local selectedMob
+
+local displayNames = {
+    "Noob",
+    "Bacon",
+    "Farmer",
+    "Gamer",
+    "Chef",
+    "Snowman",
+    "Teenager",
+    "Influencer",
+    "Wizard",
+    "Developer",
+    "Rock",
+    "Tourist",
+    "Prissoner",
+    "Princess",
+    "Domino",
+    "Ghost",
+    "Pop Cat",
+    "Witch",
+    "Evil Dilly",
+    "Inferno",
+    "Swimmer",
+    "Shark",
+    "Squid",
+    "Mermaid",
+    "Legend",
+}
+
+local DropdownMob = Tabs.Home:AddDropdown("DropdownMob:", {
+    Title = "Select Mobs",
+    Values = displayNames,
+    Multi = false,
+    Default = 1
+})
+
+local DropdownNames = {}
+for i, name in ipairs(displayNames) do
+    DropdownNames[name] = i
+end
+
+DropdownMob:OnChanged(function(Value)
+    selectedMob = DropdownNames[Value]
+end)
+
+local ToggleMob = Tabs.Home:AddToggle("ToggleMob", { Title = "Auto Win", Default = false })
+ToggleMob:OnChanged(function(Value)
+    getgenv().autoMob = Value
+    Npc(selectedMob)
+end)
+
+
+local TogglePop = Tabs.Main:AddToggle("TogglePop", { Title = "Auto Pop", Default = false })
+TogglePop:OnChanged(function(Value)
+    getgenv().autoPop = Value
+    Pop()
+end)
+
+local ToggleClaim = Tabs.Main:AddToggle("ToggleClaim", { Title = "Auto Pick-up", Default = false })
+ToggleClaim:OnChanged(function(Value)
+    getgenv().autoClaim = Value
+    Claim()
+end)
+
+local ToggleRebirth = Tabs.Main:AddToggle("ToggleRebirth", { Title = "Auto Rebirth", Default = false })
+ToggleRebirth:OnChanged(function(Value)
+    getgenv().autoRebirth = Value
+    Rebirth()
+end)
+
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+
+SaveManager:SetIgnoreIndexes({})
+
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+SaveManager:LoadAutoloadConfig()
