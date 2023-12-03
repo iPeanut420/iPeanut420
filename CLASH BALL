@@ -1,0 +1,91 @@
+local remotePath = game:GetService("ReplicatedStorage")
+local cooldown = 0.01
+getgenv().autoParry = true
+getgenv().autoAbility = true
+getgenv().autoSafe = true
+
+local function Parry()
+  spawn(function()
+    while getgenv().autoParry do
+      remotePath.RE.BattingEvent:FireServer(true)
+      task.wait(cooldown)
+    end
+  end)
+end
+
+local function Ability()
+  spawn(function()
+    while getgenv().autoAbility do
+      remotePath.RE.AbilityEvent:FireServer()
+      task.wait(3)
+    end
+  end)
+end
+
+local function Safe()
+  spawn(function()
+    while getgenv().autoSafe do
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+      task.wait(cooldown)
+    end
+  end)
+end
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Clash Ball",
+    SubTitle = "Zniv Hub",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+Fluent:Notify({
+    Title = "Script Executed!",
+    Content = "Skiddie " .. game.Players.LocalPlayer.Name,
+    SubContent = "Logged In!",
+    Duration = 7
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "gamepad-2" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local ToggleParry = Tabs.Main:AddToggle("ToggleParry", { Title = "Auto Parry", Default = false })
+ToggleParry:OnChanged(function(Value)
+    getgenv().autoParry = Value
+    Parry()
+end)
+
+local ToggleAbility = Tabs.Main:AddToggle("ToggleAbility", { Title = "Auto Ability", Default = false })
+ToggleAbility:OnChanged(function(Value)
+    getgenv().autoAbility = Value
+    Ability()
+end)
+
+local ToggleSafe = Tabs.Main:AddToggle("ToggleSafe", { Title = "Safe Zone", Default = false })
+ToggleSafe:OnChanged(function(Value)
+    getgenv().autoSafe = Value
+    Safe()
+end)
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+
+SaveManager:SetIgnoreIndexes({})
+
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+SaveManager:LoadAutoloadConfig()
